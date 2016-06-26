@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">My App Portfolio</string>
+    <string name="pm_toast">This button will launch my movies app!</string>
+    <string name="sh_toast">This button will launch my stock hawk app!</string>
+    <string name="bib_toast">This button will launch my build it bigger app!</string>
+    <string name="myam_toast">This button will launch my material app!</string>
+    <string name="gu_toast">This button will launch my go utiquitous app!</string>
+    <string name="c_toast">This button will launch my capstone app!</string>
+</resources>

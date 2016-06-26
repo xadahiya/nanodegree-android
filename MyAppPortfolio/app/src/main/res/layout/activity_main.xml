@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.typingeek.com.myappportfolio.MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="My Nanodegree Apps!"
+        android:id="@+id/textView"
+        android:textSize="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="42dp"/>
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="POPULAR MOVIES"
+            android:id="@+id/movies"
+            android:background="#2E3D49"
+            android:textColor="#FFF"
+            android:layout_marginBottom="10dp"
+            android:minWidth="250dp"
+            android:longClickable="false"
+            android:layout_below="@+id/textView"
+            android:layout_alignLeft="@+id/hawk"
+            android:layout_alignStart="@+id/hawk"
+            android:layout_marginTop="57dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_height="wrap_content"
+            android:text="STOCK HAWK"
+            android:id="@+id/hawk"
+            android:minWidth="250dp"
+            android:background="#2E3D49"
+            android:textColor="#FFF"
+            android:layout_below="@+id/movies"
+            android:layout_alignLeft="@+id/bigger"
+            android:layout_alignStart="@+id/bigger"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BUILD IT BIGGER"
+            android:minWidth="250dp"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/bigger"
+            android:background="#2E3D49"
+            android:textColor="#FFF"
+            android:layout_below="@+id/hawk"
+            android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MAKE YOUR APP MATERIAL"
+            android:id="@+id/material"
+            android:minWidth="250dp"
+            android:background="#2E3D49"
+            android:layout_marginBottom="10dp"
+            android:textColor="#FFF"
+            android:layout_below="@+id/bigger"
+            android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GO UBIQUITOUS"
+            android:id="@+id/ubiquitous"
+            android:minWidth="250dp"
+            android:background="#2E3D49"
+            android:layout_marginBottom="10dp"
+            android:textColor="#FFF"
+            android:layout_below="@+id/material"
+            android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CAPSTONE"
+            android:id="@+id/capstone"
+            android:minWidth="250dp"
+            android:layout_below="@+id/ubiquitous"
+            android:layout_marginBottom="10dp"
+            android:layout_centerHorizontal="true"
+            android:background="#2E3D49"
+            android:textColor="#FFF"/>
+
+</RelativeLayout>
