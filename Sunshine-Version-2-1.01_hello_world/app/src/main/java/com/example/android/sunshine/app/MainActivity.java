@@ -1,7 +1,12 @@
 package com.example.android.sunshine.app;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -35,7 +40,22 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, settingsActivity.class);
+            startActivity(intent);
+
             return true;
+        }
+        else if(id == R.id.action_view_on_map){
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            String location = prefs.getString(getString(R.string.pref_key), getString(R.string.pref_default));
+            String map = "http://maps.google.co.in/maps?q=" + location ;
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(map));
+            if(intent.resolveActivity(getPackageManager()) != null){
+                startActivity(intent);
+            }
+            else{
+                Log.d("implicit intent", "No app capable of managing this intent");
+            }
         }
 
         return super.onOptionsItemSelected(item);

@@ -1,8 +1,11 @@
 package com.example.android.sunshine.app;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -12,8 +15,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +41,8 @@ import java.util.List;
 public class ForecastFragment extends Fragment {
     private ArrayAdapter<String> forecastAdapter;
 
+
+
     public ForecastFragment() {
 
     }
@@ -51,16 +58,28 @@ public class ForecastFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater){
         menuInflater.inflate(R.menu.forecastfragment, menu);
     }
+    public void updateWeather(){
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location_key = pref.getString(getString(R.string.pref_key),getString(R.string.pref_default));
+        String unit = pref.getString(getString(R.string.units_key),getString(R.string.units_default));
+        weatherTask.execute(location_key, unit);
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        updateWeather();
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
 
-
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                FetchWeatherTask weatherTask = new FetchWeatherTask();
-                weatherTask.execute("sonipat");
+               updateWeather();
                 return true;
+
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -71,16 +90,8 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        String[] forecastArray = {
-                "Mon 6/23 - Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17",
-                "Thurs 6/26 - Rainy - 18/11",
-                "Fri 6/27 - Foggy - 21/10",
-                "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7"
-
+        final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        String[] forecastArray ={
         };
 
         List<String> weekForecast = new ArrayList<>(
@@ -91,6 +102,14 @@ public class ForecastFragment extends Fragment {
         ListView listview = (ListView) rootView.findViewById(R.id.listView_forecast);
         listview.setAdapter(forecastAdapter);
 
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                intent.putExtra("weather_data",((TextView)view).getText());
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }
@@ -112,6 +131,16 @@ public class ForecastFragment extends Fragment {
          * Prepare the weather high/lows for presentation.
          */
         private String formatHighLows(double high, double low) {
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String unit = prefs.getString(getString(R.string.units_key), getString(R.string.units_default));
+
+            if(unit.equals(getString(R.string.pref_units_imperial))){
+                high = (high * 1.8) + 32;
+                low = (low * 1.8) + 32;
+            }else if(!unit.equals(getString(R.string.pref_units_metric))){
+                Log.d(LOG_TAG,"Unit type not found"+ unit);
+            }
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
