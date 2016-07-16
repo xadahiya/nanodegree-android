@@ -24,6 +24,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MoviesListFragment extends Fragment {
@@ -198,9 +200,21 @@ public class MoviesListFragment extends Fragment {
         @Override
         protected void onPostExecute(Movie[] result) {
 //            super.onPostExecute(strings);
+
+            List<Movie> movieResult = new ArrayList<>(
+
+                    Arrays.asList(result)
+            );
+
+            Collections.sort(movieResult,new Comparator<Movie>() {
+                @Override
+                public int compare(Movie o1, Movie o2) {
+                    return o1.getMvote_average().compareTo(o2.getMvote_average());
+                }
+            });
             if (result != null){
                 gridAdapter.clear();
-                for (Movie movie : result){
+                for (Movie movie : movieResult){
                     gridAdapter.add(movie);
                 }
             }

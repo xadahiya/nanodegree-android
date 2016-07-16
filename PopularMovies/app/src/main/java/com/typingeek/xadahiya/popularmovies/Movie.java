@@ -34,4 +34,12 @@ public class Movie {
         mvote_count = vote_count;
         mbackdrop_img = backdrop_img;
     }
+
+    public Float getMpopularity() {
+        return mpopularity;
+    }
+
+    public Float getMvote_average() {
+        return mvote_average;
+    }
 }
