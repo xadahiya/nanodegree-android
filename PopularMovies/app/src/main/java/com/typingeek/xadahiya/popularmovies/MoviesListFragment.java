@@ -1,7 +1,10 @@
 package com.typingeek.xadahiya.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -74,10 +77,22 @@ public class MoviesListFragment extends Fragment {
         fetchMovies.execute();
     }
 
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
     @Override
     public void onStart(){
         super.onStart();
-        UpdateMovies();
+        if(isOnline()){
+            UpdateMovies();
+        }
+        else{
+            Log.d("internet","No internet connectivity");
+        }
     }
 
     private Movie[] getMovieDataFromJson(String movieJsonStr)
