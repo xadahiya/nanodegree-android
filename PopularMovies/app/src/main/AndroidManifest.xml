@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.typingeek.xadahiya.popularmovies">
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -16,10 +17,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MoviesListFragment"></activity>
-        <activity android:name=".settingsActivity"
-            android:label="@string/title_activity_settings">
-        </activity>
+        <activity android:name=".MoviesListFragment" />
+        <activity
+            android:name=".settingsActivity"
+            android:label="@string/title_activity_settings"></activity>
+        <activity android:name=".DetailActivity"></activity>
     </application>
 
 </manifest>

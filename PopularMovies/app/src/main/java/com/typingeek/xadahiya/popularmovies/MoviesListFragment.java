@@ -1,5 +1,6 @@
 package com.typingeek.xadahiya.popularmovies;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -37,8 +38,8 @@ public class MoviesListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         Movie[] test_movies = {
-                new Movie(true,"http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg", "Interstellar", "fjskadfjlasfd",Float.parseFloat("4.5"),Float.parseFloat("44.5"), 100, "http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"),
-                new Movie(true,"http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg", "Interstellar", "fjskadfjlasfd",Float.parseFloat("4.5"),Float.parseFloat("44.5"), 100, "http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg"),
+                new Movie(true,"http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg", "Interstellar", "fjskadfjlasfd",Float.parseFloat("4.5"),Float.parseFloat("44.5"), 100, "http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg","83409483"),
+                new Movie(true,"http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg", "Interstellar", "fjskadfjlasfd",Float.parseFloat("4.5"),Float.parseFloat("44.5"), 100, "http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg","89890"),
 
         };
 
@@ -55,6 +56,10 @@ public class MoviesListFragment extends Fragment {
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
+                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                Movie movie = parent.getAdapter().getItem(position);
+                intent.putExtra("Movie", movie);
+                Log.d("Item", gridAdapter.getItem(position).toString());
                 Toast.makeText(getActivity(), "" + position,
                         Toast.LENGTH_SHORT).show();
             }
@@ -87,6 +92,7 @@ public class MoviesListFragment extends Fragment {
         final String OWM_POPULARITY = "popularity";
         final String OWM_VOTE_AVERAGE = "vote_average";
         final String OWM_VOTE_COUNT = "vote_count";
+        final String OWM_RELEASE_DATE = "release_date";
 
         JSONObject forecastJson = new JSONObject(movieJsonStr);
         JSONArray resultArray = forecastJson.getJSONArray(OWM_RESULT);
@@ -102,8 +108,9 @@ public class MoviesListFragment extends Fragment {
             Float popularity = Float.parseFloat(movieObject.get(OWM_POPULARITY).toString());
             Float vote_average = Float.parseFloat(movieObject.get(OWM_VOTE_AVERAGE).toString());
             Integer vote_count = movieObject.getInt(OWM_VOTE_COUNT);
+            String release_date = movieObject.getString(OWM_RELEASE_DATE);
             Log.d("movie", backdrop_url);
-            movie_list[i] = new Movie(isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img);
+            movie_list[i] = new Movie(isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
 
         }
         return movie_list;
