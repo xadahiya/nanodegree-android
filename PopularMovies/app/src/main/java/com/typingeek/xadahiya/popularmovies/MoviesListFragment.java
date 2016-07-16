@@ -29,7 +29,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -152,8 +151,21 @@ public class MoviesListFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                final String MOVIE_BASE_URL =
-                        "http://api.themoviedb.org/3/movie/popular?";
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String sort_mode = pref.getString(getString(R.string.sort_mode),getString(R.string.sort_default));
+                final String MOVIE_BASE_URL;
+                if(sort_mode.equals("popularity")){
+                    MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/popular?";;
+                }
+                else if (sort_mode.equals("rating")){
+                    MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/top_rated?";
+                }
+                else{
+                    Log.d(LOG_TAG,"Unit type not found"+ sort_mode);
+                    MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/top_rated?";
+                }
+
+
                 final String API_KEY_PARAM = "api_key";
 
                 Uri builtUri = Uri.parse(MOVIE_BASE_URL).buildUpon()
@@ -251,7 +263,7 @@ public class MoviesListFragment extends Fragment {
                     Arrays.asList(result)
             );
 
-            Collections.sort(movieResult, Sort);
+//            Collections.sort(movieResult, Sort);
             if (result != null){
                 gridAdapter.clear();
                 for (Movie movie : movieResult){
