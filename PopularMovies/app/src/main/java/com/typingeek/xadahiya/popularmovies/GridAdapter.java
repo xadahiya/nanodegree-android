@@ -9,17 +9,19 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 public class GridAdapter extends ArrayAdapter {
     private Context context;
     private LayoutInflater inflater;
 
-    private String[] imageUrls;
+    private List<Movie> movies;
 
-    public GridAdapter(Context context, String[] imageUrls) {
-        super(context, R.layout.gridview_item_image, imageUrls);
+    public GridAdapter(Context context, List<Movie> movies) {
+        super(context, R.layout.gridview_item_image, movies);
 
         this.context = context;
-        this.imageUrls = imageUrls;
+        this.movies = movies;
 
         inflater = LayoutInflater.from(context);
     }
@@ -32,7 +34,7 @@ public class GridAdapter extends ArrayAdapter {
 
         Picasso
                 .with(context)
-                .load(imageUrls[position])
+                .load(movies.get(position).getMbackdrop_img())
                 .fit() // will explain later
                 .into((ImageView) convertView);
 
