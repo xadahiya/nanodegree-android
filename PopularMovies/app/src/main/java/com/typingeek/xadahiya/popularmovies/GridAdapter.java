@@ -27,6 +27,11 @@ public class GridAdapter extends ArrayAdapter {
     }
 
     @Override
+    public Movie getItem(int position){
+        return movies.get(position);
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (null == convertView) {
             convertView = inflater.inflate(R.layout.gridview_item_image, parent, false);

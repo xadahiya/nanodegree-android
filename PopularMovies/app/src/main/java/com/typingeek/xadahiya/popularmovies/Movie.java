@@ -11,6 +11,18 @@ public class Movie implements Parcelable {
     private boolean misAdult;
     private String mbackdrop_url;
 
+    public String getMrelease_date() {
+        return mrelease_date;
+    }
+
+    public String getMtitle() {
+        return mtitle;
+    }
+
+    public String getMsummary() {
+        return msummary;
+    }
+
     public String getMbackdrop_url() {
         return mbackdrop_url;
     }

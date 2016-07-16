@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,11 +56,13 @@ public class MoviesListFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
                 Intent intent = new Intent(getActivity(), DetailActivity.class);
-                Movie movie = parent.getAdapter().getItem(position);
+                Movie movie = gridAdapter.getItem(position);
                 intent.putExtra("Movie", movie);
-                Log.d("Item", gridAdapter.getItem(position).toString());
-                Toast.makeText(getActivity(), "" + position,
-                        Toast.LENGTH_SHORT).show();
+//                Log.d("Item", gridAdapter.getItem(position).getMpopularity().toString());
+//                Toast.makeText(getActivity(), "" + position,
+//                        Toast.LENGTH_SHORT).show();
+
+                startActivity(intent);
             }
         });
         return v;

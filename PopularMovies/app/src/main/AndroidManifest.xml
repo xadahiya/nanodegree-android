@@ -17,11 +17,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MoviesListFragment" />
+
         <activity
             android:name=".settingsActivity"
             android:label="@string/title_activity_settings"></activity>
-        <activity android:name=".DetailActivity"></activity>
+        <activity android:name=".DetailActivity"
+            android:label="@string/app_details"></activity>
     </application>
 
 </manifest>
