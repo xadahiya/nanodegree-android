@@ -1,8 +1,10 @@
 package com.typingeek.xadahiya.popularmovies;
 
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -196,22 +198,37 @@ public class MoviesListFragment extends Fragment {
 
         }
 
+        public Comparator<Movie> Sort = new Comparator<Movie>() {
+            @Override
+            public int compare(Movie o1, Movie o2) {
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String sort_mode = pref.getString(getString(R.string.sort_mode),getString(R.string.sort_default));
+
+                if(sort_mode.equals("popularity")){
+                    return o1.getMpopularity().compareTo(o2.getMpopularity());
+                }
+                else if (sort_mode.equals("rating")){
+                    return o1.getMvote_average().compareTo(o2.getMvote_average());
+                }
+                else{
+                    Log.d(LOG_TAG,"Unit type not found"+ sort_mode);
+                }
+                return 0;
+            }
+        };
 
         @Override
         protected void onPostExecute(Movie[] result) {
 //            super.onPostExecute(strings);
+
+
 
             List<Movie> movieResult = new ArrayList<>(
 
                     Arrays.asList(result)
             );
 
-            Collections.sort(movieResult,new Comparator<Movie>() {
-                @Override
-                public int compare(Movie o1, Movie o2) {
-                    return o1.getMvote_average().compareTo(o2.getMvote_average());
-                }
-            });
+            Collections.sort(movieResult, Sort);
             if (result != null){
                 gridAdapter.clear();
                 for (Movie movie : movieResult){

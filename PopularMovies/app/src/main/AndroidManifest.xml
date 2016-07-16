@@ -17,6 +17,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".MoviesListFragment"></activity>
+        <activity android:name=".settingsActivity"
+            android:label="@string/title_activity_settings">
+        </activity>
     </application>
 
 </manifest>
