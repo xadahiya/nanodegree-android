@@ -1,64 +1,41 @@
 package com.typingeek.xadahiya.popularmovies;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
-/**
- * Created by xadahiya on 7/15/16.
- */
-public class GridAdapter extends BaseAdapter {
-    private Context mContext;
+import com.squareup.picasso.Picasso;
 
-    public GridAdapter(Context c) {
-        mContext = c;
+public class GridAdapter extends ArrayAdapter {
+    private Context context;
+    private LayoutInflater inflater;
+
+    private String[] imageUrls;
+
+    public GridAdapter(Context context, String[] imageUrls) {
+        super(context, R.layout.gridview_item_image, imageUrls);
+
+        this.context = context;
+        this.imageUrls = imageUrls;
+
+        inflater = LayoutInflater.from(context);
     }
 
-    public int getCount() {
-        return mThumbIds.length;
-    }
-
-    public Object getItem(int position) {
-        return null;
-    }
-
-    public long getItemId(int position) {
-        return 0;
-    }
-
-    // create a new ImageView for each item referenced by the Adapter
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView;
-        if (convertView == null) {
-            // if it's not recycled, initialize some attributes
-            imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new GridView.LayoutParams(200, 200));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(8, 8, 8, 8);
-        } else {
-            imageView = (ImageView) convertView;
+        if (null == convertView) {
+            convertView = inflater.inflate(R.layout.gridview_item_image, parent, false);
         }
 
-        imageView.setImageResource(mThumbIds[position]);
-        return imageView;
+        Picasso
+                .with(context)
+                .load(imageUrls[position])
+                .fit() // will explain later
+                .into((ImageView) convertView);
+
+        return convertView;
     }
-
-    // references to our images
-    private Integer[] mThumbIds = {
-            R.drawable.sample_2, R.drawable.sample_3,
-            R.drawable.sample_4, R.drawable.sample_5,
-            R.drawable.sample_6, R.drawable.sample_7,
-            R.drawable.sample_0, R.drawable.sample_1,
-            R.drawable.sample_2, R.drawable.sample_3,
-            R.drawable.sample_4, R.drawable.sample_5,
-            R.drawable.sample_6, R.drawable.sample_7,
-            R.drawable.sample_0, R.drawable.sample_1,
-            R.drawable.sample_2, R.drawable.sample_3,
-            R.drawable.sample_4, R.drawable.sample_5,
-            R.drawable.sample_6, R.drawable.sample_7
-    };
 }
-
