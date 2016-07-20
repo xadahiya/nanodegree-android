@@ -10,7 +10,7 @@
     <string name="pref_default" translatable="false">sonipat</string>
     <string name="pref_key" translatable="false">location</string>
     <string name="units_default">metric</string>
-    <string name="units_key">unit</string>
+    <string name="pref_units_key">unit</string>
     <string name="pref_units_imperial">imperial</string>
     <string name="pref_units_metric">metric</string>
     <string name="action_view_on_map">View On Map</string>
