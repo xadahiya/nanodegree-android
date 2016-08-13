@@ -12,7 +12,9 @@
         android:theme="@style/AppTheme" >
         <provider
             android:authorities="com.example.android.sunshine.app"
-            android:name=".data.WeatherProvider"></provider>
+            android:name=".data.WeatherProvider"
+            android:enabled="true"
+            android:exported="true"></provider>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >

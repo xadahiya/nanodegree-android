@@ -134,6 +134,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
                     WeatherContract.LocationEntry.CONTENT_URI,
                     locationValues
             );
+            Log.d("test uri 1", insertedUri.toString());
 
             // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
             locationId = ContentUris.parseId(insertedUri);
