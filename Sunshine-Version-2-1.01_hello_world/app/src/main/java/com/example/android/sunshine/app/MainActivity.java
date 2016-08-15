@@ -11,17 +11,33 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends ActionBarActivity {
-public final String LOG_TAG = MainActivity.this.getClass().getSimpleName();
+public class MainActivity extends ActionBarActivity implements ForecastFragment.Callback{
+    public final String LOG_TAG = MainActivity.this.getClass().getSimpleName();
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
+
+    private boolean mTwoPane;
+    private String mLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mLocation = Utility.getPreferredLocation(this);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
-                    .commit();
+
+        if(findViewById(R.id.weather_detail_container) != null){
+            mTwoPane = true;
+
+            if( savedInstanceState == null){
+                getSupportFragmentManager().beginTransaction().replace(R.id.weather_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG).commit();
+            }
         }
+        else{
+            mTwoPane = false;
+            getSupportActionBar().setElevation(0f);
+
+        }
+
+        ForecastFragment forecastFragment = ((ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_forecast));
+        forecastFragment.setUseTodayLayout(!mTwoPane);
     }
 
     @Override
@@ -44,10 +60,23 @@ public final String LOG_TAG = MainActivity.this.getClass().getSimpleName();
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        Log.d(LOG_TAG,"Activity Resumed");
+        String location = Utility.getPreferredLocation(this);
+        if (location != null && !location.equals(mLocation)) {
+            ForecastFragment ff = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
 
+            if (null != ff) {
+                ff.onLocationChanged();
+            }
+            DetailFragment df = (DetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if ( null != df ) {
+                df.onLocationChanged(location);
+            }
+            mLocation = location;
+            Log.d(LOG_TAG, "Activity Resumed");
+
+        }
     }
 
     @Override
@@ -71,7 +100,7 @@ public final String LOG_TAG = MainActivity.this.getClass().getSimpleName();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, settingsActivity.class);
+            Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
 
             return true;
@@ -90,6 +119,25 @@ public final String LOG_TAG = MainActivity.this.getClass().getSimpleName();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(Uri contentUri){
+        if(mTwoPane){
+            Bundle args = new Bundle();
+            args.putParcelable(DetailFragment.DETAIL_URI, contentUri);
+
+            DetailFragment detailFragment = new DetailFragment();
+            detailFragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.weather_detail_container, detailFragment, DETAILFRAGMENT_TAG).commit();
+
+        }
+        else{
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.setData(contentUri);
+            startActivity(intent);
+        }
     }
 
 
