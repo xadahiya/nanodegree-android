@@ -1,6 +1,7 @@
 package com.typingeek.xadahiya.popularmovies;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -19,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.typingeek.xadahiya.popularmovies.data.MovieContract;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,11 +36,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Vector;
 
 public class MoviesListFragment extends Fragment {
 
     public NetworkChangeReceiver mNetworkChangeReceiver;
-
     public  GridAdapter gridAdapter ;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -117,26 +120,61 @@ public class MoviesListFragment extends Fragment {
         final String OWM_VOTE_AVERAGE = "vote_average";
         final String OWM_VOTE_COUNT = "vote_count";
         final String OWM_RELEASE_DATE = "release_date";
+        try {
+            JSONObject forecastJson = new JSONObject(movieJsonStr);
+            JSONArray resultArray = forecastJson.getJSONArray(OWM_RESULT);
 
-        JSONObject forecastJson = new JSONObject(movieJsonStr);
-        JSONArray resultArray = forecastJson.getJSONArray(OWM_RESULT);
-        Movie[] movie_list = new Movie[resultArray.length()];
-        for(int i = 0; i < resultArray.length(); i++) {
-            JSONObject movieObject = resultArray.getJSONObject(i);
+            // Vector for bulkInserting data
+            Vector<ContentValues> cVVector = new Vector<ContentValues>(resultArray.length());
 
-            boolean isAdult = movieObject.getBoolean(OWM_ADULT);
-            String backdrop_url = "http://image.tmdb.org/t/p/w185/"+movieObject.getString(OWM_BACKDROP_PATH);
-            String title = movieObject.getString(OWM_TITLE);
-            String description = movieObject.getString(OWM_DESCRIPTION);
-            String backdrop_img = "http://image.tmdb.org/t/p/w185/"+movieObject.getString(OWM_BACKDROP_IMG);
-            Float popularity = Float.parseFloat(movieObject.get(OWM_POPULARITY).toString());
-            Float vote_average = Float.parseFloat(movieObject.get(OWM_VOTE_AVERAGE).toString());
-            Integer vote_count = movieObject.getInt(OWM_VOTE_COUNT);
-            String release_date = movieObject.getString(OWM_RELEASE_DATE);
-            Log.d("movie", backdrop_url);
-            movie_list[i] = new Movie(isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
+            Movie[] movie_list = new Movie[resultArray.length()];
+            for (int i = 0; i < resultArray.length(); i++) {
+                JSONObject movieObject = resultArray.getJSONObject(i);
 
-        }
+                boolean isAdult = movieObject.getBoolean(OWM_ADULT);
+                String backdrop_url = "http://image.tmdb.org/t/p/w185/" + movieObject.getString(OWM_BACKDROP_PATH);
+                String title = movieObject.getString(OWM_TITLE);
+                String description = movieObject.getString(OWM_DESCRIPTION);
+                String backdrop_img = "http://image.tmdb.org/t/p/w185/" + movieObject.getString(OWM_BACKDROP_IMG);
+                Float popularity = Float.parseFloat(movieObject.get(OWM_POPULARITY).toString());
+                Float vote_average = Float.parseFloat(movieObject.get(OWM_VOTE_AVERAGE).toString());
+                Integer vote_count = movieObject.getInt(OWM_VOTE_COUNT);
+                String release_date = movieObject.getString(OWM_RELEASE_DATE);
+                Log.d("movie", backdrop_url);
+                movie_list[i] = new Movie(isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
+
+
+                ContentValues movieValues = new ContentValues();
+
+                movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ISADULT, (isAdult) ? 1 : 0);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_URL, backdrop_url);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, title);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_DESCRIPTION, description);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_BACKDROP_IMAGE, description);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, popularity);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, vote_average);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_COUNT, vote_count);
+                movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, release_date);
+
+                cVVector.add(movieValues);
+            }
+
+            int inserted = 0;
+
+            if (cVVector.size() > 0) {
+                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+                inserted = getContext().getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, cvArray);
+
+            }
+
+            Log.d("Database test", "FetchWeatherTask Complete. " + inserted + " Inserted");
+
+        } catch (JSONException e) {
+            Log.e("Database test", e.getMessage(), e);
+            e.printStackTrace();
+    }
+        Movie[] movie_list = new Movie[4];
         return movie_list;
     }
 

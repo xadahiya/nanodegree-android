@@ -23,7 +23,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <provider
+            android:authorities="com.typingeek.xadahiya.popularmovies"
+            android:name=".data.MovieProvider"
+            android:exported="false"
+            android:syncable="true"
+        />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
