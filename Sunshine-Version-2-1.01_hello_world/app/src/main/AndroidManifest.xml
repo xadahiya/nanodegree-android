@@ -49,7 +49,8 @@
             android:authorities="@string/content_authority"
             android:name=".data.WeatherProvider"
             android:exported="false"
-            android:syncable="true" />
+            android:syncable="true"
+        />
 
         <!-- SyncAdapter's dummy authentication service -->
         <service android:name=".sync.SunshineAuthenticatorService">

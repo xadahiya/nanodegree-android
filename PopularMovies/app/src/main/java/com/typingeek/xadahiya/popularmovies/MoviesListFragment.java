@@ -1,7 +1,9 @@
 package com.typingeek.xadahiya.popularmovies;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -34,14 +36,13 @@ import java.util.List;
 
 public class MoviesListFragment extends Fragment {
 
+    public NetworkChangeReceiver mNetworkChangeReceiver;
+
     public  GridAdapter gridAdapter ;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         Movie[] test_movies = {
-                new Movie(true,"http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg", "Interstellar", "fjskadfjlasfd",Float.parseFloat("4.5"),Float.parseFloat("44.5"), 100, "http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg","83409483"),
-                new Movie(true,"http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg", "Interstellar", "fjskadfjlasfd",Float.parseFloat("4.5"),Float.parseFloat("44.5"), 100, "http://image.tmdb.org/t/p/w185///nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg","89890"),
-
         };
 
         List<Movie> movieList = new ArrayList<>(
@@ -77,21 +78,29 @@ public class MoviesListFragment extends Fragment {
     }
 
 
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
+
     @Override
     public void onStart(){
         super.onStart();
-        if(isOnline()){
-            UpdateMovies();
-        }
-        else{
-            Log.d("internet","No internet connectivity");
-        }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        mNetworkChangeReceiver = new NetworkChangeReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        getActivity().registerReceiver(mNetworkChangeReceiver, intentFilter);
+
+
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+
+        getActivity().unregisterReceiver(mNetworkChangeReceiver);
     }
 
     private Movie[] getMovieDataFromJson(String movieJsonStr)
@@ -273,6 +282,30 @@ public class MoviesListFragment extends Fragment {
 
         }
         }
+
+    public class NetworkChangeReceiver extends BroadcastReceiver {
+
+        private static final String LOG_TAG = "NetworkChangeReceiver";
+        @Override
+        public void onReceive(final Context context, Intent intent){
+            Log.v(LOG_TAG, "Receieved notification about network status");
+            isNetworkAvailable(context);
+        }
+
+        private void isNetworkAvailable(Context context){
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            if(connectivityManager != null){
+
+                NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+                if(activeNetwork != null){
+                    UpdateMovies();
+                    Log.d(LOG_TAG, "Movie list updated using broadcast receiver");
+                }
+            }
+        }
     }
+
+}
 
 
