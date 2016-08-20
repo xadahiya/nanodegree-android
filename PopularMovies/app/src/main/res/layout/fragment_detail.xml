@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:layout_height="match_parent"
+                    tools:context="com.typingeek.xadahiya.popularmovies.DetailActivity">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Title"
+            android:textAlignment="center"
+            android:id="@+id/movie_title"
+            android:layout_alignParentTop="true"
+            android:background="#009688"
+            android:textColor="#FFF"
+            android:layout_centerHorizontal="true"
+            android:padding="10dp"
+            android:textSize="35dp"/>
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/movie_poster"
+                android:layout_margin="20dp"
+                android:layout_weight="2"
+                />
+
+            <LinearLayout android:layout_width="0dp"
+                          android:layout_height="wrap_content"
+                          android:orientation="vertical"
+                          android:layout_weight="3">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/release_date"
+                    android:id="@+id/textView"
+                    android:padding="10dp"
+                     />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:id="@+id/release_date"
+                    android:padding="10dp"
+                     />
+
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text="@string/user_rating"
+                        android:id="@+id/textView2"
+                        android:padding="10dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:text=""
+                        android:id="@+id/user_rating"
+                        android:padding="10dp"
+                         />
+
+                </LinearLayout>
+
+                <Button android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Mark as Favourite" android:id="@+id/favourite_btn"/>
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/movie_description"
+            android:layout_weight="0.48"
+            android:padding="2dp"
+            android:layout_marginTop="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:textAppearance="?android:attr/textAppearanceLarge"
+                  android:text="@string/trailers"/>
+
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Trailer 1" android:id="@+id/trailer1"
+        />
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Trailer 2" android:id="@+id/trailer2"
+        />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/user_reviews"/>
+
+        <Button android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Read Review"
+        android:id="@+id/read_review"/>
+
+
+    </LinearLayout>
+</ScrollView>

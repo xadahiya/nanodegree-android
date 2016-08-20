@@ -31,6 +31,7 @@ public class Movie implements Parcelable {
         return mbackdrop_img;
     }
 
+    private String mId;
     private String mtitle;
     private String msummary;
     private Float mpopularity;
@@ -38,18 +39,14 @@ public class Movie implements Parcelable {
     private Integer mvote_count;
     private String mbackdrop_img;
     private String mrelease_date;
-    private Boolean misFavourite;
 
-    public Boolean getMisFavourite() {
-        return misFavourite;
+    public String getId() {
+        return mId;
     }
 
-    public void setMisFavourite(Boolean misFavourite) {
-        this.misFavourite = misFavourite;
-    }
+    public Movie(String id, boolean isAdult, String backdrop_url, String title, String summary, Float popularity, Float vote_average, Integer vote_count, String backdrop_img, String release_date){
 
-    public Movie(boolean isAdult, String backdrop_url, String title, String summary, Float popularity, Float vote_average, Integer vote_count, String backdrop_img, String release_date, boolean isFavourite){
-
+        mId = id;
         misAdult = isAdult;
         mbackdrop_url = backdrop_url;
         mtitle = title;
@@ -60,7 +57,6 @@ public class Movie implements Parcelable {
         mbackdrop_img = backdrop_img;
         mrelease_date = release_date;
 
-        misFavourite = isFavourite;
     }
 
     public Float getMpopularity() {
@@ -74,6 +70,7 @@ public class Movie implements Parcelable {
 
 
     protected Movie(Parcel in) {
+        mId = in.readString();
         misAdult = in.readByte() != 0x00;
         mbackdrop_url = in.readString();
         mtitle = in.readString();
@@ -90,8 +87,18 @@ public class Movie implements Parcelable {
         return 0;
     }
 
+    public boolean isMisAdult() {
+        return misAdult;
+    }
+
+    public Integer getMvote_count() {
+        return mvote_count;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mId);
+
         dest.writeByte((byte) (misAdult ? 0x01 : 0x00));
         dest.writeString(mbackdrop_url);
         dest.writeString(mtitle);
@@ -104,6 +111,7 @@ public class Movie implements Parcelable {
         }
         if (mvote_average == null) {
             dest.writeByte((byte) (0x00));
+
         } else {
             dest.writeByte((byte) (0x01));
             dest.writeFloat(mvote_average);

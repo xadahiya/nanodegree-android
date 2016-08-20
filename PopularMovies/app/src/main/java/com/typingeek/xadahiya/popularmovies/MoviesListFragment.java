@@ -43,34 +43,21 @@ public class MoviesListFragment extends Fragment {
 
     public NetworkChangeReceiver mNetworkChangeReceiver;
     public GridAdapter gridAdapter;
+    public boolean mTwopane;
 
     private static final String[] MOST_POPULAR_PROJECTION = new String[]{
-            MovieContract.MostPopularMovieEntry._ID,
-            MovieContract.MostPopularMovieEntry.COLUMN_MOVIE_ISADULT,
-            MovieContract.MostPopularMovieEntry.COLUMN_BACKDROP_URL,
-            MovieContract.MostPopularMovieEntry.COLUMN_TITLE,
-            MovieContract.MostPopularMovieEntry.COLUMN_DESCRIPTION,
-            MovieContract.MostPopularMovieEntry.COLUMN_BACKDROP_IMAGE,
-            MovieContract.MostPopularMovieEntry.COLUMN_POPULARITY,
-            MovieContract.MostPopularMovieEntry.COLUMN_VOTE_AVERAGE,
-            MovieContract.MostPopularMovieEntry.COLUMN_VOTE_COUNT,
-            MovieContract.MostPopularMovieEntry.COLUMN_RELEASE_DATE,
-            MovieContract.MostPopularMovieEntry.COLUMN_IS_FAVOURITE
+            MovieContract.FavouriteMovieEntry._ID,
+            MovieContract.FavouriteMovieEntry.COLUMN_MOVIE_ISADULT,
+            MovieContract.FavouriteMovieEntry.COLUMN_BACKDROP_URL,
+            MovieContract.FavouriteMovieEntry.COLUMN_TITLE,
+            MovieContract.FavouriteMovieEntry.COLUMN_DESCRIPTION,
+            MovieContract.FavouriteMovieEntry.COLUMN_BACKDROP_IMAGE,
+            MovieContract.FavouriteMovieEntry.COLUMN_POPULARITY,
+            MovieContract.FavouriteMovieEntry.COLUMN_VOTE_AVERAGE,
+            MovieContract.FavouriteMovieEntry.COLUMN_VOTE_COUNT,
+            MovieContract.FavouriteMovieEntry.COLUMN_RELEASE_DATE,
     };
 
-    private static final String[] TOP_RATED_PROJECTION = new String[]{
-            MovieContract.TopRatedMovieEntry._ID,
-            MovieContract.TopRatedMovieEntry.COLUMN_MOVIE_ISADULT,
-            MovieContract.TopRatedMovieEntry.COLUMN_BACKDROP_URL,
-            MovieContract.TopRatedMovieEntry.COLUMN_TITLE,
-            MovieContract.TopRatedMovieEntry.COLUMN_DESCRIPTION,
-            MovieContract.TopRatedMovieEntry.COLUMN_BACKDROP_IMAGE,
-            MovieContract.TopRatedMovieEntry.COLUMN_POPULARITY,
-            MovieContract.TopRatedMovieEntry.COLUMN_VOTE_AVERAGE,
-            MovieContract.TopRatedMovieEntry.COLUMN_VOTE_COUNT,
-            MovieContract.TopRatedMovieEntry.COLUMN_RELEASE_DATE,
-            MovieContract.TopRatedMovieEntry.COLUMN_IS_FAVOURITE
-    };
 
     // these indices must match the projection
     private static final int INDEX_ID = 0;
@@ -82,8 +69,7 @@ public class MoviesListFragment extends Fragment {
     private static final int INDEX_POPULARITY = 6;
     private static final int INDEX_VOTE_AVERAGE = 7;
     private static final int INDEX_VOTE_COUNT = 8;
-    private static final int INDEX_RELEASE_DATE = 1;
-    private static final int INDEX_IS_FAVOURITE = 1;
+    private static final int INDEX_RELEASE_DATE = 9;
 
 
     public List<Movie> getAllMovies() {
@@ -93,11 +79,12 @@ public class MoviesListFragment extends Fragment {
 
 //            SQLiteDatabase db = this.getWritableDatabase();
 //            Cursor cursor = db.rawQuery(selectQuery, null);
-        Uri moviesUri = MovieContract.MostPopularMovieEntry.CONTENT_URI;
+        Uri moviesUri = MovieContract.FavouriteMovieEntry.CONTENT_URI;
         Cursor cursor = getContext().getContentResolver().query(moviesUri, MOST_POPULAR_PROJECTION, null, null, null);
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
+                String id = cursor.getString(INDEX_ID);
                 Boolean isAdult = (cursor.getInt(INDEX_MOVIE_ISADULT) == 1) ? true : false;
                 String backdrop_url = cursor.getString(INDEX_BACKDROP_URL);
                 String title = cursor.getString(INDEX_TITLE);
@@ -107,8 +94,7 @@ public class MoviesListFragment extends Fragment {
                 Integer vote_count = cursor.getInt(INDEX_VOTE_COUNT);
                 String backdrop_img = cursor.getString(INDEX_BACKDROP_IMAGE);
                 String release_date = cursor.getString(INDEX_RELEASE_DATE);
-                Boolean isFavourite = (cursor.getInt(INDEX_IS_FAVOURITE) == 1) ? true : false;
-                Movie movie = new Movie(isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date, isFavourite);
+                Movie movie = new Movie(id, isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
                 Log.d("Getting data", cursor.getString(INDEX_BACKDROP_IMAGE));
                 movieList.add(movie);
             } while (cursor.moveToNext());
@@ -137,14 +123,29 @@ public class MoviesListFragment extends Fragment {
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Intent intent = new Intent(getActivity(), DetailActivity.class);
                 Movie movie = gridAdapter.getItem(position);
-                intent.putExtra("Movie", movie);
+
+                if (! mTwopane){
+                    Intent intent = new Intent(getActivity(), DetailActivity.class);
+                    intent.putExtra("Movie", movie);
+                    startActivity(intent);
+                }
+                else{
+                    Bundle args = new Bundle();
+                    args.putParcelable("Movie", movie);
+
+                    DetailFragment detailFragment = new DetailFragment();
+                    detailFragment.setArguments(args);
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .add(R.id.movie_details_container, detailFragment)
+                            .commit();
+                }
+
 //                Log.d("Item", gridAdapter.getItem(position).getMpopularity().toString());
 //                Toast.makeText(getActivity(), "" + position,
 //                        Toast.LENGTH_SHORT).show();
 
-                startActivity(intent);
+
             }
         });
         return v;
@@ -152,9 +153,26 @@ public class MoviesListFragment extends Fragment {
     }
 
     public void UpdateMovies() {
-        FetchMovies fetchMovies = new FetchMovies();
-        fetchMovies.execute();
-    }
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sort_mode = pref.getString(getString(R.string.sort_mode), getString(R.string.sort_default));
+
+        Log.d("sortmode", sort_mode);
+        if(!sort_mode.equals("favorites")) {
+            FetchMovies fetchMovies = new FetchMovies();
+            fetchMovies.execute();
+        }
+        else{
+            List<Movie> result = getAllMovies();
+            if (result != null) {
+                gridAdapter.clear();
+                for (Movie movie : result) {
+                    gridAdapter.add(movie);
+                }
+            }
+
+
+                }
+        }
 
 
     @Override
@@ -186,6 +204,7 @@ public class MoviesListFragment extends Fragment {
 
         // These are the names of the JSON objects that need to be extracted.
         final String OWM_RESULT = "results";
+        final String OWM_ID = "id";
         final String OWM_ADULT = "adult";
         final String OWM_BACKDROP_PATH = "backdrop_path";
         final String OWM_TITLE = "original_title";
@@ -195,7 +214,7 @@ public class MoviesListFragment extends Fragment {
         final String OWM_VOTE_AVERAGE = "vote_average";
         final String OWM_VOTE_COUNT = "vote_count";
         final String OWM_RELEASE_DATE = "release_date";
-        try {
+//        try {
             JSONObject forecastJson = new JSONObject(movieJsonStr);
             JSONArray resultArray = forecastJson.getJSONArray(OWM_RESULT);
 
@@ -205,10 +224,13 @@ public class MoviesListFragment extends Fragment {
             String sort_mode = pref.getString(getString(R.string.sort_mode), getString(R.string.sort_default));
 
 //            Movie[] movie_list = new Movie[resultArray.length()];
+            List<Movie> movie_list = new ArrayList<Movie>();
             for (int i = 0; i < resultArray.length(); i++) {
                 JSONObject movieObject = resultArray.getJSONObject(i);
 
                 boolean isAdult = movieObject.getBoolean(OWM_ADULT);
+                String id = movieObject.getString(OWM_ID);
+//                Log.d("testing id", id);
                 String backdrop_url = "http://image.tmdb.org/t/p/w185/" + movieObject.getString(OWM_BACKDROP_PATH);
                 String title = movieObject.getString(OWM_TITLE);
                 String description = movieObject.getString(OWM_DESCRIPTION);
@@ -218,64 +240,68 @@ public class MoviesListFragment extends Fragment {
                 Integer vote_count = movieObject.getInt(OWM_VOTE_COUNT);
                 String release_date = movieObject.getString(OWM_RELEASE_DATE);
                 Log.d("movie", backdrop_url);
+                Movie movie = new Movie(id, isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
+                Log.d("testing id", movie.getId());
+                movie_list.add(movie);
 //                movie_list[i] = new Movie(isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
 
 
-                ContentValues movieValues = new ContentValues();
-
-                if (sort_mode.equals("popularity")) {
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_MOVIE_ISADULT, (isAdult) ? 1 : 0);
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_BACKDROP_URL, backdrop_url);
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_TITLE, title);
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_DESCRIPTION, description);
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_BACKDROP_IMAGE, backdrop_img);
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_POPULARITY, popularity);
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_VOTE_AVERAGE, vote_average);
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_VOTE_COUNT, vote_count);
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_RELEASE_DATE, release_date);
-                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_IS_FAVOURITE, 0);
-                } else if (sort_mode.equals("rating")) {
-
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_MOVIE_ISADULT, (isAdult) ? 1 : 0);
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_BACKDROP_URL, backdrop_url);
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_TITLE, title);
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_DESCRIPTION, description);
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_BACKDROP_IMAGE, description);
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_POPULARITY, popularity);
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_VOTE_AVERAGE, vote_average);
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_VOTE_COUNT, vote_count);
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_RELEASE_DATE, release_date);
-                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_IS_FAVOURITE, 0);
-                } else {
-                    Log.d("database test", sort_mode);
-                }
-
-                cVVector.add(movieValues);
+//                ContentValues movieValues = new ContentValues();
+//
+//                if (sort_mode.equals("popularity")) {
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_MOVIE_ISADULT, (isAdult) ? 1 : 0);
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_BACKDROP_URL, backdrop_url);
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_TITLE, title);
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_DESCRIPTION, description);
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_BACKDROP_IMAGE, backdrop_img);
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_POPULARITY, popularity);
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_VOTE_AVERAGE, vote_average);
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_VOTE_COUNT, vote_count);
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_RELEASE_DATE, release_date);
+//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_IS_FAVOURITE, 0);
+//                } else if (sort_mode.equals("rating")) {
+//
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_MOVIE_ISADULT, (isAdult) ? 1 : 0);
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_BACKDROP_URL, backdrop_url);
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_TITLE, title);
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_DESCRIPTION, description);
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_BACKDROP_IMAGE, description);
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_POPULARITY, popularity);
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_VOTE_AVERAGE, vote_average);
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_VOTE_COUNT, vote_count);
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_RELEASE_DATE, release_date);
+//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_IS_FAVOURITE, 0);
+//                } else {
+//                    Log.d("database test", sort_mode);
+//                }
+//
+//                cVVector.add(movieValues);
+//            }
+//
+//            int inserted = 0;
+//
+//            if (cVVector.size() > 0) {
+//                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+//                cVVector.toArray(cvArray);
+//                if (sort_mode.equals("popularity")) {
+//                    inserted = getContext().getContentResolver().bulkInsert(MovieContract.MostPopularMovieEntry.CONTENT_URI, cvArray);
+//                    Log.d("Database test", "FetchWeatherTask Complete. " + inserted + " Inserted in MostPopularMovies table");
+//                } else if (sort_mode.equals("rating")) {
+//                    inserted = getContext().getContentResolver().bulkInsert(MovieContract.TopRatedMovieEntry.CONTENT_URI, cvArray);
+//                    Log.d("Database test", "FetchWeatherTask Complete. " + inserted + " Inserted in TopRated movies table");
+//                } else {
+//                    Log.d("Database test", sort_mode + "insertion to database failed");
+//                }
+//
+//            }
+//
+//
+//        } catch (JSONException e) {
+//            Log.e("Database test", e.getMessage(), e);
+//            e.printStackTrace();
+//        }
             }
-
-            int inserted = 0;
-
-            if (cVVector.size() > 0) {
-                ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                cVVector.toArray(cvArray);
-                if (sort_mode.equals("popularity")) {
-                    inserted = getContext().getContentResolver().bulkInsert(MovieContract.MostPopularMovieEntry.CONTENT_URI, cvArray);
-                    Log.d("Database test", "FetchWeatherTask Complete. " + inserted + " Inserted in MostPopularMovies table");
-                } else if (sort_mode.equals("rating")) {
-                    inserted = getContext().getContentResolver().bulkInsert(MovieContract.TopRatedMovieEntry.CONTENT_URI, cvArray);
-                    Log.d("Database test", "FetchWeatherTask Complete. " + inserted + " Inserted in TopRated movies table");
-                } else {
-                    Log.d("Database test", sort_mode + "insertion to database failed");
-                }
-
-            }
-
-
-        } catch (JSONException e) {
-            Log.e("Database test", e.getMessage(), e);
-            e.printStackTrace();
-        }
-        return getAllMovies();
+        return movie_list;
     }
 
 
@@ -293,22 +319,22 @@ public class MoviesListFragment extends Fragment {
             String movieJsonstr = null;
             String format = "json";
 
-
             try {
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String sort_mode = pref.getString(getString(R.string.sort_mode), getString(R.string.sort_default));
+
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                String sort_mode = pref.getString(getString(R.string.sort_mode), getString(R.string.sort_default));
                 final String MOVIE_BASE_URL;
                 if (sort_mode.equals("popularity")) {
                     MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/popular?";
                     ;
                 } else if (sort_mode.equals("rating")) {
                     MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/top_rated?";
-                } else {
-                    Log.d(LOG_TAG, "Unit type not found" + sort_mode);
-                    MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/top_rated?";
+                }
+                else{
+                    MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/popular?";
                 }
 
 
@@ -443,6 +469,10 @@ public class MoviesListFragment extends Fragment {
                 }
             }
         }
+
+    public void setTwoPaneLayout(boolean mTwoPane){
+        mTwopane = mTwoPane;
+    }
 
 
 }

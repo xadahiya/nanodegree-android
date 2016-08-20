@@ -3,40 +3,55 @@ package com.typingeek.xadahiya.popularmovies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class DetailActivity extends AppCompatActivity {
-
-    public TextView movie_title;
-    public TextView movie_description;
-    public TextView release_date;
-    public TextView user_rating;
-    public ImageView movie_poster;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-
-        movie_title = (TextView) findViewById(R.id.movie_title);
-        movie_description = (TextView) findViewById(R.id.movie_description);
-        movie_poster = (ImageView) findViewById(R.id.movie_poster);
-        release_date = (TextView) findViewById(R.id.release_date);
-        user_rating = (TextView) findViewById(R.id.user_rating);
         Intent details = getIntent();
         Movie movie = details.getParcelableExtra("Movie");
+        Log.d("idtest", movie.getId());
+        if(savedInstanceState == null){
+            Bundle args = new Bundle();
+            args.putParcelable("Movie", movie);
 
-        movie_title.setText(movie.getMtitle());
-        movie_description.setText(movie.getMsummary());
-        release_date.setText(movie.getMrelease_date());
-        user_rating.setText(movie.getMvote_average().toString());
-        Picasso.with(this)
-                .load(movie.getMbackdrop_img())
-                .into(movie_poster);
+            DetailFragment detailFragment = new DetailFragment();
+            detailFragment.setArguments(args);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_details_container, detailFragment)
+                    .commit();
+        }
+
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }

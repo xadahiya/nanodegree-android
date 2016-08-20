@@ -13,8 +13,7 @@ import android.net.Uri;
 public class MovieProvider extends ContentProvider{
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
-    static final int MOSTPOPULARMOVIE = 100;
-    static final int TOPRATEDMOVIE =200;
+    static final int FAVOURITEMOVIE = 100;
     private MoviesHelper mMoviesHelper;
 
     @Override
@@ -22,10 +21,8 @@ public class MovieProvider extends ContentProvider{
         final int match = sUriMatcher.match(uri);
 
         switch (match){
-            case MOSTPOPULARMOVIE:
-                return MovieContract.MostPopularMovieEntry.CONTENT_TYPE;
-            case TOPRATEDMOVIE:
-                return MovieContract.TopRatedMovieEntry.CONTENT_TYPE;
+            case FAVOURITEMOVIE:
+                return MovieContract.FavouriteMovieEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -37,8 +34,7 @@ public class MovieProvider extends ContentProvider{
         final String authority = MovieContract.CONTENT_AUTHORITY;
 
 
-        matcher.addURI(authority, MovieContract.PATH_TRMOVIE, TOPRATEDMOVIE);
-        matcher.addURI(authority, MovieContract.PATH_MPMOVIE, MOSTPOPULARMOVIE);
+        matcher.addURI(authority, MovieContract.PATH_FMOVIE, FAVOURITEMOVIE);
         return matcher;
         }
 
@@ -56,11 +52,8 @@ public class MovieProvider extends ContentProvider{
         int rowsUpdated;
 
         switch (match) {
-            case MOSTPOPULARMOVIE:
-                rowsUpdated = db.update(MovieContract.MostPopularMovieEntry.TABLE_NAME, contentValues, selection, selectionArgs);
-                break;
-            case TOPRATEDMOVIE:
-                rowsUpdated = db.update(MovieContract.TopRatedMovieEntry.TABLE_NAME, contentValues, selection,selectionArgs);
+            case FAVOURITEMOVIE:
+                rowsUpdated = db.update(MovieContract.FavouriteMovieEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -78,19 +71,10 @@ public class MovieProvider extends ContentProvider{
         Uri returnUri;
 
         switch (match){
-            case MOSTPOPULARMOVIE:
-                long _id = db.insert(MovieContract.MostPopularMovieEntry.TABLE_NAME, null, values);
+            case FAVOURITEMOVIE:
+                long _id = db.insert(MovieContract.FavouriteMovieEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
-                    returnUri = MovieContract.MostPopularMovieEntry.buildMovieUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-
-            case TOPRATEDMOVIE:
-                _id = db.insert(MovieContract.TopRatedMovieEntry.TABLE_NAME, null, values);
-                if( _id > 0){
-                    returnUri = MovieContract.TopRatedMovieEntry.buildMovieUri(_id);
-                }
+                    returnUri = MovieContract.FavouriteMovieEntry.buildMovieUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -111,12 +95,9 @@ public class MovieProvider extends ContentProvider{
         // this makes delete all rows return the number of rows deleted
         if ( null == selection ) selection = "1";
         switch (match) {
-            case MOSTPOPULARMOVIE:
+            case FAVOURITEMOVIE:
                 rowsDeleted = db.delete(
-                        MovieContract.MostPopularMovieEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-            case TOPRATEDMOVIE:
-                rowsDeleted = db.delete(MovieContract.TopRatedMovieEntry.TABLE_NAME, selection, selectionArgs);
+                        MovieContract.FavouriteMovieEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -133,9 +114,9 @@ public class MovieProvider extends ContentProvider{
         Cursor retCursor;
 
         switch (sUriMatcher.match(uri)){
-            case MOSTPOPULARMOVIE: {
+            case FAVOURITEMOVIE: {
                 retCursor = mMoviesHelper.getReadableDatabase().query(
-                        MovieContract.MostPopularMovieEntry.TABLE_NAME,
+                        MovieContract.FavouriteMovieEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -146,17 +127,6 @@ public class MovieProvider extends ContentProvider{
                 break;
             }
 
-            case TOPRATEDMOVIE: {
-                retCursor = mMoviesHelper.getReadableDatabase().query(
-                        MovieContract.TopRatedMovieEntry.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
-            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
 
@@ -171,12 +141,12 @@ public class MovieProvider extends ContentProvider{
         final SQLiteDatabase db = mMoviesHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case MOSTPOPULARMOVIE:
+            case FAVOURITEMOVIE:
                 db.beginTransaction();
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
-                        long _id = db.insert(MovieContract.MostPopularMovieEntry.TABLE_NAME, null, value);
+                        long _id = db.insert(MovieContract.FavouriteMovieEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount++;
                         }
@@ -187,24 +157,6 @@ public class MovieProvider extends ContentProvider{
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
-
-            case TOPRATEDMOVIE:
-                db.beginTransaction();
-                returnCount = 0;
-                try{
-                    for (ContentValues value : values){
-                        long _id = db.insert(MovieContract.TopRatedMovieEntry.TABLE_NAME, null, value);
-                        if(_id != -1){
-                            returnCount++;
-                        }
-                    }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-                getContext().getContentResolver().notifyChange(uri, null);
-                return returnCount;
-
             default:
                 return super.bulkInsert(uri, values);
         }
