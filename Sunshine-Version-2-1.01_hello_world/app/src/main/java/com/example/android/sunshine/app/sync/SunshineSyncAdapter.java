@@ -345,7 +345,6 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                     WeatherContract.LocationEntry.CONTENT_URI,
                     locationValues
             );
-
             // The resulting URI contains the ID for the row.  Extract the locationId from the Uri.
             locationId = ContentUris.parseId(insertedUri);
         }

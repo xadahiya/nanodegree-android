@@ -38,8 +38,17 @@ public class Movie implements Parcelable {
     private Integer mvote_count;
     private String mbackdrop_img;
     private String mrelease_date;
+    private Boolean misFavourite;
 
-    public Movie(boolean isAdult, String backdrop_url, String title, String summary, Float popularity, Float vote_average, Integer vote_count, String backdrop_img, String release_date){
+    public Boolean getMisFavourite() {
+        return misFavourite;
+    }
+
+    public void setMisFavourite(Boolean misFavourite) {
+        this.misFavourite = misFavourite;
+    }
+
+    public Movie(boolean isAdult, String backdrop_url, String title, String summary, Float popularity, Float vote_average, Integer vote_count, String backdrop_img, String release_date, boolean isFavourite){
 
         misAdult = isAdult;
         mbackdrop_url = backdrop_url;
@@ -50,6 +59,8 @@ public class Movie implements Parcelable {
         mvote_count = vote_count;
         mbackdrop_img = backdrop_img;
         mrelease_date = release_date;
+
+        misFavourite = isFavourite;
     }
 
     public Float getMpopularity() {
