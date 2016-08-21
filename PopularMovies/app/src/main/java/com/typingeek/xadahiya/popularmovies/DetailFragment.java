@@ -55,9 +55,9 @@ public class DetailFragment extends Fragment {
     public Button trailer1;
     public Button trailer2;
     public Button favourite_btn;
-    public Button read_review;
+    public TextView review_txt;
     public Movie mMovie;
-    public String review_uri = "";
+    public String review = "";
     public String trailer1_uri = "";
     public String trailer2_uri = "";
 
@@ -70,15 +70,8 @@ public class DetailFragment extends Fragment {
         movie_poster = (ImageView) view.findViewById(R.id.movie_poster);
         release_date = (TextView) view.findViewById(R.id.release_date);
         user_rating = (TextView) view.findViewById(R.id.user_rating);
-        read_review = (Button) view.findViewById(R.id.read_review);
+        review_txt = (TextView) view.findViewById(R.id.read_review);
         favourite_btn = (Button) view.findViewById(R.id.favourite_btn);
-        read_review.setEnabled(false);
-        read_review.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(review_uri)));
-            }
-        });
         trailer1 = (Button) view.findViewById(R.id.trailer1);
         trailer1.setEnabled(false);
         trailer2 = (Button) view.findViewById(R.id.trailer2);
@@ -225,21 +218,21 @@ public class DetailFragment extends Fragment {
         // These are the names of the JSON objects that need to be extracted.
 
         final String OWM_RESULT = "results";
-        final String OWM_URL = "url";
+        final String OWM_CONTENT = "content";
 
         JSONObject forecastJson = new JSONObject(trailerJsonStr);
         JSONArray resultArray = forecastJson.getJSONArray(OWM_RESULT);
 
 
-        List<String> trailer_list = new ArrayList<String>();
+        List<String> review_list = new ArrayList<String>();
         for (int i = 0; i < resultArray.length(); i++) {
             JSONObject trailerObject = resultArray.getJSONObject(i);
 
-            String key = trailerObject.getString(OWM_URL);
-            trailer_list.add(key);
+            String key = trailerObject.getString(OWM_CONTENT);
+            review_list.add(key);
 //
         }
-        return trailer_list;
+        return review_list;
     }
 
     public class FetchTrailer extends AsyncTask<String, Void, List<String>> {
@@ -436,9 +429,10 @@ public class DetailFragment extends Fragment {
         protected void onPostExecute(List<String> result) {
             trailer1.setEnabled(true);
             try {
-                read_review.setEnabled(true);
-                review_uri = result.get(0);
-                Log.d("review", review_uri);
+//                read_review.setEnabled(true);
+                review = result.get(0);
+                review_txt.setText(review);
+                Log.d("review", review);
 
             } catch (Exception e) {
                 Log.d("review", "error generating review uris");

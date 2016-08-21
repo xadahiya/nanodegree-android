@@ -44,6 +44,7 @@ public class MoviesListFragment extends Fragment {
     public NetworkChangeReceiver mNetworkChangeReceiver;
     public GridAdapter gridAdapter;
     public boolean mTwopane;
+    public List<Movie>  mMovieList = new ArrayList<Movie>();
 
     private static final String[] MOST_POPULAR_PROJECTION = new String[]{
             MovieContract.FavouriteMovieEntry._ID,
@@ -107,6 +108,26 @@ public class MoviesListFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (mMovieList != null) {
+
+            ArrayList<Movie> restoreMovieList = new ArrayList<>(mMovieList.size());
+            restoreMovieList.addAll(mMovieList);
+            Log.d("movieList", restoreMovieList.toString());
+            outState.putParcelableArrayList("movieList", restoreMovieList);
+
+        }
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState); // Always call the superclass first
+    }
+
+        @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         Movie[] test_movies = {
@@ -150,8 +171,34 @@ public class MoviesListFragment extends Fragment {
 
             }
         });
-        return v;
 
+            if (savedInstanceState != null) {
+                // Restore last state for checked position.
+                ArrayList<Movie> restoreMovieList = savedInstanceState.getParcelableArrayList("movieList");
+                mMovieList.addAll(restoreMovieList);
+//            Log.d("moviexa",movieList.toString());
+                RestoreMovies();
+            }
+            else{
+                mNetworkChangeReceiver = new NetworkChangeReceiver();
+                IntentFilter intentFilter = new IntentFilter();
+                intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+                getActivity().registerReceiver(mNetworkChangeReceiver, intentFilter);
+
+            }
+
+            return v;
+
+    }
+
+    public void RestoreMovies() {
+
+        if (mMovieList != null) {
+            gridAdapter.clear();
+            for (Movie movie : mMovieList) {
+                gridAdapter.add(movie);
+            }
+        }
     }
 
     public void UpdateMovies() {
@@ -185,13 +232,6 @@ public class MoviesListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        mNetworkChangeReceiver = new NetworkChangeReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        getActivity().registerReceiver(mNetworkChangeReceiver, intentFilter);
-
-
     }
 
 
@@ -249,63 +289,6 @@ public class MoviesListFragment extends Fragment {
                 Movie movie = new Movie(id, isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
                 Log.d("testing id", movie.getId());
                 movie_list.add(movie);
-//                movie_list[i] = new Movie(isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
-
-
-//                ContentValues movieValues = new ContentValues();
-//
-//                if (sort_mode.equals("popularity")) {
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_MOVIE_ISADULT, (isAdult) ? 1 : 0);
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_BACKDROP_URL, backdrop_url);
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_TITLE, title);
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_DESCRIPTION, description);
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_BACKDROP_IMAGE, backdrop_img);
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_POPULARITY, popularity);
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_VOTE_AVERAGE, vote_average);
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_VOTE_COUNT, vote_count);
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_RELEASE_DATE, release_date);
-//                    movieValues.put(MovieContract.MostPopularMovieEntry.COLUMN_IS_FAVOURITE, 0);
-//                } else if (sort_mode.equals("rating")) {
-//
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_MOVIE_ISADULT, (isAdult) ? 1 : 0);
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_BACKDROP_URL, backdrop_url);
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_TITLE, title);
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_DESCRIPTION, description);
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_BACKDROP_IMAGE, description);
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_POPULARITY, popularity);
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_VOTE_AVERAGE, vote_average);
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_VOTE_COUNT, vote_count);
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_RELEASE_DATE, release_date);
-//                    movieValues.put(MovieContract.TopRatedMovieEntry.COLUMN_IS_FAVOURITE, 0);
-//                } else {
-//                    Log.d("database test", sort_mode);
-//                }
-//
-//                cVVector.add(movieValues);
-//            }
-//
-//            int inserted = 0;
-//
-//            if (cVVector.size() > 0) {
-//                ContentValues[] cvArray = new ContentValues[cVVector.size()];
-//                cVVector.toArray(cvArray);
-//                if (sort_mode.equals("popularity")) {
-//                    inserted = getContext().getContentResolver().bulkInsert(MovieContract.MostPopularMovieEntry.CONTENT_URI, cvArray);
-//                    Log.d("Database test", "FetchWeatherTask Complete. " + inserted + " Inserted in MostPopularMovies table");
-//                } else if (sort_mode.equals("rating")) {
-//                    inserted = getContext().getContentResolver().bulkInsert(MovieContract.TopRatedMovieEntry.CONTENT_URI, cvArray);
-//                    Log.d("Database test", "FetchWeatherTask Complete. " + inserted + " Inserted in TopRated movies table");
-//                } else {
-//                    Log.d("Database test", sort_mode + "insertion to database failed");
-//                }
-//
-//            }
-//
-//
-//        } catch (JSONException e) {
-//            Log.e("Database test", e.getMessage(), e);
-//            e.printStackTrace();
-//        }
             }
         return movie_list;
     }
@@ -329,10 +312,7 @@ public class MoviesListFragment extends Fragment {
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 String sort_mode = pref.getString(getString(R.string.sort_mode), getString(R.string.sort_default));
 
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
-                final String MOVIE_BASE_URL;
+                 final String MOVIE_BASE_URL;
                 if (sort_mode.equals("popularity")) {
                     MOVIE_BASE_URL = "http://api.themoviedb.org/3/movie/popular?";
                     ;
@@ -370,9 +350,7 @@ public class MoviesListFragment extends Fragment {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
+
                     buffer.append(line + "\n");
                 }
 
@@ -401,7 +379,8 @@ public class MoviesListFragment extends Fragment {
             }
 
             try {
-                return getMovieDataFromJson(movieJsonstr);
+                mMovieList = getMovieDataFromJson(movieJsonstr);
+                return mMovieList;
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
