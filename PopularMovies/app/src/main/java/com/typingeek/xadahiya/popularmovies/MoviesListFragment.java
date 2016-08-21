@@ -47,6 +47,7 @@ public class MoviesListFragment extends Fragment {
 
     private static final String[] MOST_POPULAR_PROJECTION = new String[]{
             MovieContract.FavouriteMovieEntry._ID,
+            MovieContract.FavouriteMovieEntry.COLUMN_MOVIE_ID,
             MovieContract.FavouriteMovieEntry.COLUMN_MOVIE_ISADULT,
             MovieContract.FavouriteMovieEntry.COLUMN_BACKDROP_URL,
             MovieContract.FavouriteMovieEntry.COLUMN_TITLE,
@@ -61,15 +62,16 @@ public class MoviesListFragment extends Fragment {
 
     // these indices must match the projection
     private static final int INDEX_ID = 0;
-    private static final int INDEX_MOVIE_ISADULT = 1;
-    private static final int INDEX_BACKDROP_URL = 2;
-    private static final int INDEX_TITLE = 3;
-    private static final int INDEX_DESC = 4;
-    private static final int INDEX_BACKDROP_IMAGE = 5;
-    private static final int INDEX_POPULARITY = 6;
-    private static final int INDEX_VOTE_AVERAGE = 7;
-    private static final int INDEX_VOTE_COUNT = 8;
-    private static final int INDEX_RELEASE_DATE = 9;
+    private static final int INDEX_MOVIE_ID = 1;
+    private static final int INDEX_MOVIE_ISADULT = 2;
+    private static final int INDEX_BACKDROP_URL = 3;
+    private static final int INDEX_TITLE = 4;
+    private static final int INDEX_DESC = 5;
+    private static final int INDEX_BACKDROP_IMAGE = 6;
+    private static final int INDEX_POPULARITY = 7;
+    private static final int INDEX_VOTE_AVERAGE = 8;
+    private static final int INDEX_VOTE_COUNT = 9;
+    private static final int INDEX_RELEASE_DATE = 10;
 
 
     public List<Movie> getAllMovies() {
@@ -84,7 +86,7 @@ public class MoviesListFragment extends Fragment {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
-                String id = cursor.getString(INDEX_ID);
+                String movieId = cursor.getString(INDEX_MOVIE_ID);
                 Boolean isAdult = (cursor.getInt(INDEX_MOVIE_ISADULT) == 1) ? true : false;
                 String backdrop_url = cursor.getString(INDEX_BACKDROP_URL);
                 String title = cursor.getString(INDEX_TITLE);
@@ -94,7 +96,7 @@ public class MoviesListFragment extends Fragment {
                 Integer vote_count = cursor.getInt(INDEX_VOTE_COUNT);
                 String backdrop_img = cursor.getString(INDEX_BACKDROP_IMAGE);
                 String release_date = cursor.getString(INDEX_RELEASE_DATE);
-                Movie movie = new Movie(id, isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
+                Movie movie = new Movie(movieId, isAdult, backdrop_url, title, description, popularity, vote_average, vote_count, backdrop_img, release_date);
                 Log.d("Getting data", cursor.getString(INDEX_BACKDROP_IMAGE));
                 movieList.add(movie);
             } while (cursor.moveToNext());
@@ -137,7 +139,7 @@ public class MoviesListFragment extends Fragment {
                     DetailFragment detailFragment = new DetailFragment();
                     detailFragment.setArguments(args);
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .add(R.id.movie_details_container, detailFragment)
+                            .replace(R.id.movie_details_container, detailFragment)
                             .commit();
                 }
 
@@ -192,11 +194,15 @@ public class MoviesListFragment extends Fragment {
 
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mNetworkChangeReceiver!=null) {
+            getActivity().unregisterReceiver(mNetworkChangeReceiver);
+            mNetworkChangeReceiver=null;
+        }
 
-        getActivity().unregisterReceiver(mNetworkChangeReceiver);
     }
 
     private List<Movie> getMovieDataFromJson(String movieJsonStr)

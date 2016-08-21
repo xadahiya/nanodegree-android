@@ -5,12 +5,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,7 +51,7 @@ public class DetailFragment extends Fragment {
     public TextView release_date;
     public TextView user_rating;
     public ImageView movie_poster;
-    public String movie_id;
+    public String movie_id  = "278";
     public Button trailer1;
     public Button trailer2;
     public Button favourite_btn;
@@ -95,7 +97,11 @@ public class DetailFragment extends Fragment {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(trailer2_uri)));
             }
         });
-
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String sort_mode = pref.getString(getString(R.string.sort_mode), getString(R.string.sort_default));
+        if(sort_mode.equals("favorites")){
+         favourite_btn.setEnabled(false);
+        }
         favourite_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -325,8 +331,8 @@ public class DetailFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<String> result) {
-            trailer1.setEnabled(true);
             try{
+                trailer1.setEnabled(true);
                 trailer1_uri = "https://www.youtube.com/watch?v=" + result.get(0);
                 Log.d("trailer", trailer1_uri);
                 trailer2.setEnabled(true);
