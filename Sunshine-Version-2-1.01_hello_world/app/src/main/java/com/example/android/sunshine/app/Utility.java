@@ -17,8 +17,12 @@ package com.example.android.sunshine.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
+
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -36,6 +40,15 @@ public class Utility {
         return prefs.getString(context.getString(R.string.pref_units_key),
                 context.getString(R.string.pref_units_metric))
                 .equals(context.getString(R.string.pref_units_metric));
+    }
+
+    static public boolean isNetworkAvailable(Context c) {
+        ConnectivityManager cm =
+                (ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
     }
 
     public static String formatTemperature(Context context, double temperature, boolean isMetric) {
@@ -244,5 +257,18 @@ public class Utility {
             return R.drawable.art_clouds;
         }
         return -1;
+    }
+
+    @SuppressWarnings("ResourceType")
+    static public @SunshineSyncAdapter.LocationStatus int getLocationStatus(Context c){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(c);
+        return sharedPreferences.getInt(c.getString(R.string.pref_location_staus_key), SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
+    }
+
+    static public void resetLocationStatus(Context context){
+       SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor sharedPrefreferencesEditor = sharedPreferences.edit();
+        sharedPrefreferencesEditor.putInt(context.getString(R.string.pref_location_staus_key), SunshineSyncAdapter.LOCATION_STATUS_UNKNOWN);
+        sharedPrefreferencesEditor.apply();
     }
 }
