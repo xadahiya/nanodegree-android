@@ -152,6 +152,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
             setLocationStaus(getContext(), LOCATION_STATUS_SERVER_INVALID);
+            return;
         }finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -540,6 +541,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 editor.putLong(lastNotificationKey, System.currentTimeMillis());
                 editor.commit();
             }
+            cursor.close();
         }
 
         }
